@@ -20,6 +20,20 @@ var levelToPriority = map[string]syslog.Priority{
 	"debug":   syslog.LOG_DEBUG,   /* debug-level messages */
 }
 
+//Config is used to configure logger
+type Config struct {
+	AppName    string
+	LogLevel   string
+	LogConsole bool
+	LogSyslog  *SyslogConfig
+}
+
+//SyslogConfig is a sub-config of LoggerConfig for syslog configuration
+type SyslogConfig struct {
+	RemoteIP    string
+	LogPriority string
+}
+
 type loggerConfig struct {
 	appName    string
 	logLevel   logrus.Level
@@ -27,56 +41,50 @@ type loggerConfig struct {
 	logSyslog  *syslogConfig
 }
 
-//SyslogConfig is a sub-config for syslog configuration
-type SyslogConfig struct {
-	RemoteIP    string
-	LogPriority string
-}
-
 type syslogConfig struct {
 	remoteIP    string
 	logPriority syslog.Priority
 }
 
-//NewConfig creates a Config instance which determines how/where the logger displays messages
-func NewConfig(appName, logLevel string, logConsole bool, logSyslog *SyslogConfig) (*loggerConfig, error) {
-	if appName == "" {
-		return nil, errors.New("appName is required")
-	}
-	if logLevel == "" {
-		return nil, errors.New("logLevel is required")
+func validateConfig(input Config) (*loggerConfig, error) {
+	if input.AppName == "" {
+		return nil, errors.New("AppName is required")
 	}
 
-	logLvl, err := logrus.ParseLevel(logLevel)
+	if input.LogLevel == "" {
+		return nil, errors.New("LogLevel is required")
+	}
+
+	logLvl, err := logrus.ParseLevel(input.LogLevel)
 	if err != nil {
-		return nil, errors.New("Invalid logLevel")
+		return nil, errors.New("Invalid LogLevel")
 	}
 	var realLogSyslog *syslogConfig
 
-	if logSyslog != nil {
-		if logSyslog.RemoteIP == "" {
-			return nil, errors.New("If logSyslog is specified, logSyslog.RemoteIP is required")
+	if input.LogSyslog != nil {
+		if input.LogSyslog.RemoteIP == "" {
+			return nil, errors.New("If LogSyslog is specified, LogSyslog.RemoteIP is required")
 		}
-		if logSyslog.LogPriority == "" {
-			return nil, errors.New("If logSyslog is specified, logSyslog.LogPriority is required")
+		if input.LogSyslog.LogPriority == "" {
+			return nil, errors.New("If LogSyslog is specified, LogSyslog.LogPriority is required")
 		}
-		logPrio, ok := levelToPriority[logSyslog.LogPriority]
+		logPrio, ok := levelToPriority[input.LogSyslog.LogPriority]
 		if !ok {
-			return nil, errors.New("Invalid logPriority")
+			return nil, errors.New("Invalid LogPriority")
 		}
 		realLogSyslog = &syslogConfig{
-			remoteIP:    logSyslog.RemoteIP,
+			remoteIP:    input.LogSyslog.RemoteIP,
 			logPriority: logPrio,
 		}
 	}
 
-	if logSyslog == nil && !logConsole {
-		return nil, errors.New("Must have at least either logSyslog or logConsole enabled")
+	if input.LogSyslog == nil && !input.LogConsole {
+		return nil, errors.New("Must have at least either LogSyslog or LogConsole enabled")
 	}
 	c := loggerConfig{
-		appName,
+		input.AppName,
 		logLvl,
-		logConsole,
+		input.LogConsole,
 		realLogSyslog,
 	}
 	return &c, nil

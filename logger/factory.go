@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/sirupsen/logrus"
@@ -14,9 +15,14 @@ var factory = &loggerFactory{
 	map[string]Logger{},
 }
 
-func (f *loggerFactory) getLogger(appName string) Logger {
-	if logger, ok := f.loggers[appName]; ok {
-		return logger
+func (f *loggerFactory) getLogger(appName string) *Logger {
+	logger, _ := f.loggers[appName]
+	return &logger
+}
+
+func (f *loggerFactory) createLogger(appName string) (*Logger, error) {
+	if f.isLoggerPresent(appName) {
+		return nil, fmt.Errorf("Logger name %s already taken", appName)
 	}
 
 	logger := Logger{
@@ -31,5 +37,10 @@ func (f *loggerFactory) getLogger(appName string) Logger {
 
 	f.loggers[appName] = logger
 
-	return f.getLogger(appName)
+	return f.getLogger(appName), nil
+}
+
+func (f *loggerFactory) isLoggerPresent(appName string) bool {
+	_, ok := f.loggers[appName]
+	return ok
 }
