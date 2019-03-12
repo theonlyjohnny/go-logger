@@ -1,5 +1,5 @@
-hash: 5fe383806b1238e794022d1772e416bc8a511d9a0814125efaa35d678e22178f
-updated: 2019-03-09T02:11:56.549724684Z
+hash: 32ce10faf0cb272aecd6e5fefa013da430b326adf5602a0343685af80498c90f
+updated: 2019-03-12T04:26:51.423961179Z
 imports:
 - name: github.com/fatih/color
   version: 5b77d2a35fb0ede96d138fc9a99f5c9b6aef11b4
@@ -10,7 +10,7 @@ imports:
 - name: github.com/mattn/go-isatty
   version: 369ecd8cea9851e459abb67eb171853e3986591e
 - name: github.com/sirupsen/logrus
-  version: e1e72e9de974bd926e5c56f83753fba2df402ce5
+  version: dae0fa8d5b0c810a8ab733fbd5510c7cae84eca4
   subpackages:
   - hooks/syslog
 - name: golang.org/x/crypto
