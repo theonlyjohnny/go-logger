@@ -1,4 +1,4 @@
-package logger
+package jogger
 
 import (
 	"bytes"
